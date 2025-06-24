@@ -11,7 +11,7 @@ import userRoutes from './routes/users.js';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000; // Changed from 5003 to 5000
+const PORT = process.env.PORT || 5003;
 
 // MongoDB connection string - using environment variable
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -28,7 +28,7 @@ let isDBConnected = false;
 // Middleware to check database connection
 const checkDBConnection = (req, res, next) => {
   if (!isDBConnected) {
-    return res.status(503).json({ 
+    return res.status(503).json({
       message: 'Database connection unavailable. Please check your MongoDB configuration.',
       error: 'DATABASE_DISCONNECTED'
     });
@@ -40,29 +40,29 @@ const checkDBConnection = (req, res, next) => {
 const connectDB = async () => {
   try {
     console.log('Attempting to connect to MongoDB...');
-    
+
     // Check if MONGODB_URI is set
     if (!process.env.MONGODB_URI) {
       console.log('⚠️  MONGODB_URI not found in environment variables');
       console.log('📝 Please create a .env file with your MongoDB connection string');
       console.log('   Example: MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/library');
     }
-    
+
     // Disable buffering to prevent timeout errors
     mongoose.set('bufferCommands', false);
-    
+
     const conn = await mongoose.connect(MONGODB_URI, {
       serverSelectionTimeoutMS: 10000, // Reduced timeout for faster feedback
-      socketTimeoutMS: 45000,
+      socketTimeoutMS: 45003,
       connectTimeoutMS: 10000,
       maxPoolSize: 10,
       minPoolSize: 5,
     });
-    
+
     isDBConnected = true;
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     console.log(`📚 Database: ${conn.connection.name}`);
-    
+
   } catch (error) {
     isDBConnected = false;
     console.error('❌ MongoDB connection error:', error.message);
@@ -75,7 +75,7 @@ const connectDB = async () => {
     console.log('5. Check that your MongoDB Atlas credentials are correct');
     console.log('');
     console.log('⚠️  Server will continue running but database features will be unavailable');
-    
+
     // Retry connection after 30 seconds
     setTimeout(() => {
       console.log('🔄 Retrying MongoDB connection...');
@@ -86,7 +86,7 @@ const connectDB = async () => {
 
 // Health check endpoint (always available)
 app.get('/api/health', (req, res) => {
-  res.json({ 
+  res.json({
     status: 'Server is running',
     mongodb: isDBConnected ? 'Connected' : 'Disconnected',
     timestamp: new Date().toISOString()
@@ -123,16 +123,16 @@ mongoose.connection.on('error', (err) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  
+
   // Handle MongoDB connection errors specifically
   if (err.name === 'MongooseServerSelectionError') {
-    return res.status(503).json({ 
+    return res.status(503).json({
       message: 'Database connection failed. Please check your MongoDB configuration.',
       error: 'DATABASE_CONNECTION_FAILED'
     });
   }
-  
-  res.status(500).json({ 
+
+  res.status(500).json({
     message: 'Something went wrong!',
     error: 'INTERNAL_SERVER_ERROR'
   });
@@ -142,7 +142,7 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌐 Health check available at: http://localhost:${PORT}/api/health`);
-  
+
   // Start database connection attempt
   connectDB();
 });

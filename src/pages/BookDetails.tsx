@@ -2,20 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-<<<<<<< HEAD
 import {
   Book,
   Calendar,
   DollarSign,
   User,
-=======
-import { 
-  Book, 
-  Calendar, 
-  DollarSign, 
-  User, 
->>>>>>> dfd1c293eded44ad85555bda85466495188c6f64
-  Clock,
   CheckCircle,
   AlertCircle,
   ArrowLeft
@@ -209,11 +200,7 @@ const BookDetails: React.FC = () => {
               {book.availableCopies > 0 ? (
                 <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-xl border border-emerald-100">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">{t('book.borrow_title')}</h3>
-<<<<<<< HEAD
 
-=======
-                  
->>>>>>> dfd1c293eded44ad85555bda85466495188c6f64
                   <div className="space-y-4">
                     <div>
                       <label htmlFor="days" className="block text-sm font-medium text-gray-700 mb-2">
@@ -247,8 +234,8 @@ const BookDetails: React.FC = () => {
 
                     {message && (
                       <div className={`p-4 rounded-lg flex items-center space-x-2 ${message.includes('success')
-                          ? 'bg-green-50 border border-green-200 text-green-700'
-                          : 'bg-red-50 border border-red-200 text-red-700'
+                        ? 'bg-green-50 border border-green-200 text-green-700'
+                        : 'bg-red-50 border border-red-200 text-red-700'
                         }`}>
                         {message.includes('success') ? (
                           <CheckCircle className="h-5 w-5" />

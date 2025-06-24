@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-<<<<<<< HEAD
-import { BookOpen, User, Mail, Lock, AlertCircle } from 'lucide-react';
-=======
 import { BookOpen, User, Mail, Lock, AlertCircle, Shield, Users } from 'lucide-react';
->>>>>>> dfd1c293eded44ad85555bda85466495188c6f64
 
 const Register: React.FC = () => {
   const [name, setName] = useState('');
