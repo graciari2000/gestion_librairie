@@ -2,11 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+<<<<<<< HEAD
 import {
   Book,
   Calendar,
   DollarSign,
   User,
+=======
+import { 
+  Book, 
+  Calendar, 
+  DollarSign, 
+  User, 
+>>>>>>> dfd1c293eded44ad85555bda85466495188c6f64
   Clock,
   CheckCircle,
   AlertCircle,
@@ -201,7 +209,11 @@ const BookDetails: React.FC = () => {
               {book.availableCopies > 0 ? (
                 <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-xl border border-emerald-100">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">{t('book.borrow_title')}</h3>
+<<<<<<< HEAD
 
+=======
+                  
+>>>>>>> dfd1c293eded44ad85555bda85466495188c6f64
                   <div className="space-y-4">
                     <div>
                       <label htmlFor="days" className="block text-sm font-medium text-gray-700 mb-2">

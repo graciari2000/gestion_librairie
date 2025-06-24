@@ -2,13 +2,18 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+<<<<<<< HEAD
 import { BookOpen, User, Mail, Lock, AlertCircle } from 'lucide-react';
+=======
+import { BookOpen, User, Mail, Lock, AlertCircle, Shield, Users } from 'lucide-react';
+>>>>>>> dfd1c293eded44ad85555bda85466495188c6f64
 
 const Register: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState<'user' | 'admin'>('user');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -32,7 +37,7 @@ const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      await register(name, email, password);
+      await register(name, email, password, role);
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.message);
@@ -128,6 +133,46 @@ const Register: React.FC = () => {
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   placeholder={t('auth.register.confirm_password')}
                 />
+              </div>
+            </div>
+
+            {/* Role Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                {t('auth.register.account_type')}
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setRole('user')}
+                  className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                    role === 'user'
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                      : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                  }`}
+                >
+                  <div className="flex flex-col items-center space-y-2">
+                    <Users className="h-6 w-6" />
+                    <span className="font-medium">{t('role.user')}</span>
+                    <span className="text-xs text-center">{t('auth.register.user_desc')}</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setRole('admin')}
+                  className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                    role === 'admin'
+                      ? 'border-teal-500 bg-teal-50 text-teal-700'
+                      : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                  }`}
+                >
+                  <div className="flex flex-col items-center space-y-2">
+                    <Shield className="h-6 w-6" />
+                    <span className="font-medium">{t('role.admin')}</span>
+                    <span className="text-xs text-center">{t('auth.register.admin_desc')}</span>
+                  </div>
+                </button>
               </div>
             </div>
 
