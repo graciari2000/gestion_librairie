@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { 
-  Book, 
-  Calendar, 
-  DollarSign, 
-  User, 
+import { useLanguage } from '../contexts/LanguageContext';
+import {
+  Book,
+  Calendar,
+  DollarSign,
+  User,
   Clock,
   CheckCircle,
   AlertCircle,
@@ -32,6 +33,7 @@ interface BookData {
 const BookDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user, token } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [book, setBook] = useState<BookData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -77,7 +79,7 @@ const BookDetails: React.FC = () => {
       });
 
       if (response.ok) {
-        setMessage('Book borrowed successfully!');
+        setMessage(t('book.success_message'));
         fetchBook(); // Refresh book data
         setTimeout(() => {
           navigate('/dashboard');
@@ -105,12 +107,12 @@ const BookDetails: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Book Not Found</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('book.not_found')}</h2>
           <button
             onClick={() => navigate('/books')}
             className="text-[#06402B] hover:text-emerald-700 font-medium"
           >
-            Back to Books
+            {t('book.back_to_books')}
           </button>
         </div>
       </div>
@@ -127,7 +129,7 @@ const BookDetails: React.FC = () => {
           className="flex items-center text-gray-600 hover:text-[#06402B] transition-colors mb-6"
         >
           <ArrowLeft className="h-5 w-5 mr-2" />
-          Back to Books
+          {t('book.back_to_books')}
         </button>
 
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
@@ -141,22 +143,22 @@ const BookDetails: React.FC = () => {
                   className="w-full h-full object-cover"
                 />
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex items-center text-gray-600 mb-1">
                     <Book className="h-4 w-4 mr-2" />
-                    <span>Available</span>
+                    <span>{t('book.available_copies')}</span>
                   </div>
                   <div className="font-semibold text-lg">
                     {book.availableCopies} / {book.totalCopies}
                   </div>
                 </div>
-                
+
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex items-center text-gray-600 mb-1">
                     <DollarSign className="h-4 w-4 mr-2" />
-                    <span>Daily Rate</span>
+                    <span>{t('book.daily_rate')}</span>
                   </div>
                   <div className="font-semibold text-lg text-green-600">
                     ${book.dailyFee}
@@ -170,10 +172,10 @@ const BookDetails: React.FC = () => {
               <div>
                 <h1 className="text-4xl font-bold text-gray-800 mb-3">{book.title}</h1>
                 <p className="text-xl text-gray-600 mb-4">by {book.author}</p>
-                
+
                 <div className="flex flex-wrap gap-4 mb-6">
                   <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-medium">
-                    {book.category}
+                    {t(`category.${book.category.toLowerCase().replace('-', '_')}`)}
                   </span>
                   <div className="flex items-center text-gray-600">
                     <Calendar className="h-4 w-4 mr-1" />
@@ -181,29 +183,29 @@ const BookDetails: React.FC = () => {
                   </div>
                   <div className="flex items-center text-gray-600">
                     <User className="h-4 w-4 mr-1" />
-                    <span>Added by {book.addedBy.name}</span>
+                    <span>{t('book.added_by')} {book.addedBy.name}</span>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">Description</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">{t('book.description')}</h3>
                 <p className="text-gray-600 leading-relaxed">{book.description}</p>
               </div>
 
               <div>
-                <p className="text-sm text-gray-500 mb-2">ISBN: {book.isbn}</p>
+                <p className="text-sm text-gray-500 mb-2">{t('book.isbn')}: {book.isbn}</p>
               </div>
 
               {/* Borrowing Section */}
               {book.availableCopies > 0 ? (
                 <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-xl border border-emerald-100">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Borrow This Book</h3>
-                  
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">{t('book.borrow_title')}</h3>
+
                   <div className="space-y-4">
                     <div>
                       <label htmlFor="days" className="block text-sm font-medium text-gray-700 mb-2">
-                        Borrowing Period (days)
+                        {t('book.borrowing_period')}
                       </label>
                       <input
                         id="days"
@@ -218,25 +220,24 @@ const BookDetails: React.FC = () => {
 
                     <div className="bg-white p-4 rounded-lg border border-gray-200">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-gray-600">Daily Rate:</span>
+                        <span className="text-gray-600">{t('book.daily_rate')}:</span>
                         <span className="font-medium">${book.dailyFee}</span>
                       </div>
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-gray-600">Days:</span>
+                        <span className="text-gray-600">{t('book.borrowing_period').split(' ')[0]}:</span>
                         <span className="font-medium">{days}</span>
                       </div>
                       <div className="flex justify-between items-center text-lg font-bold text-[#06402B] border-t pt-2">
-                        <span>Total Cost:</span>
+                        <span>{t('book.total_cost')}:</span>
                         <span>${totalCost.toFixed(2)}</span>
                       </div>
                     </div>
 
                     {message && (
-                      <div className={`p-4 rounded-lg flex items-center space-x-2 ${
-                        message.includes('success') 
+                      <div className={`p-4 rounded-lg flex items-center space-x-2 ${message.includes('success')
                           ? 'bg-green-50 border border-green-200 text-green-700'
                           : 'bg-red-50 border border-red-200 text-red-700'
-                      }`}>
+                        }`}>
                         {message.includes('success') ? (
                           <CheckCircle className="h-5 w-5" />
                         ) : (
@@ -254,12 +255,12 @@ const BookDetails: React.FC = () => {
                       {borrowing ? (
                         <div className="flex items-center justify-center space-x-2">
                           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                          <span>Processing...</span>
+                          <span>{t('book.processing')}</span>
                         </div>
                       ) : user ? (
-                        'Borrow Book'
+                        t('book.borrow_book')
                       ) : (
-                        'Login to Borrow'
+                        t('book.login_to_borrow')
                       )}
                     </button>
                   </div>
@@ -268,9 +269,9 @@ const BookDetails: React.FC = () => {
                 <div className="bg-red-50 border border-red-200 p-6 rounded-xl">
                   <div className="flex items-center space-x-2 text-red-700">
                     <AlertCircle className="h-5 w-5" />
-                    <span className="font-medium">Currently Unavailable</span>
+                    <span className="font-medium">{t('book.unavailable')}</span>
                   </div>
-                  <p className="text-red-600 mt-2">All copies of this book are currently borrowed.</p>
+                  <p className="text-red-600 mt-2">{t('book.unavailable_desc')}</p>
                 </div>
               )}
             </div>

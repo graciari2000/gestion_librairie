@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { BookOpen, User, Mail, Lock, AlertCircle } from 'lucide-react';
 
 const Register: React.FC = () => {
@@ -11,6 +12,7 @@ const Register: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -18,12 +20,12 @@ const Register: React.FC = () => {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('auth.errors.passwords_no_match'));
       return;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError(t('auth.errors.password_too_short'));
       return;
     }
 
@@ -45,8 +47,8 @@ const Register: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
           <div className="text-center mb-8">
             <BookOpen className="h-12 w-12 text-[#06402B] mx-auto mb-4" />
-            <h2 className="text-3xl font-bold text-gray-800">Join BookVault</h2>
-            <p className="text-gray-600 mt-2">Create your account to start reading</p>
+            <h2 className="text-3xl font-bold text-gray-800">{t('auth.register.title')}</h2>
+            <p className="text-gray-600 mt-2">{t('auth.register.subtitle')}</p>
           </div>
 
           {error && (
@@ -59,7 +61,7 @@ const Register: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
+                {t('auth.register.full_name')}
               </label>
               <div className="relative">
                 <User className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
@@ -70,14 +72,14 @@ const Register: React.FC = () => {
                   onChange={(e) => setName(e.target.value)}
                   required
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  placeholder="Enter your full name"
+                  placeholder={t('auth.register.full_name')}
                 />
               </div>
             </div>
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
+                {t('auth.register.email')}
               </label>
               <div className="relative">
                 <Mail className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
@@ -88,14 +90,14 @@ const Register: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  placeholder="Enter your email"
+                  placeholder={t('auth.register.email')}
                 />
               </div>
             </div>
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
+                {t('auth.register.password')}
               </label>
               <div className="relative">
                 <Lock className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
@@ -106,14 +108,14 @@ const Register: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  placeholder="Create a password"
+                  placeholder={t('auth.register.password')}
                 />
               </div>
             </div>
 
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm Password
+                {t('auth.register.confirm_password')}
               </label>
               <div className="relative">
                 <Lock className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
@@ -124,7 +126,7 @@ const Register: React.FC = () => {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  placeholder="Confirm your password"
+                  placeholder={t('auth.register.confirm_password')}
                 />
               </div>
             </div>
@@ -137,19 +139,19 @@ const Register: React.FC = () => {
               {loading ? (
                 <div className="flex items-center justify-center space-x-2">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  <span>Creating Account...</span>
+                  <span>{t('auth.register.creating_account')}</span>
                 </div>
               ) : (
-                'Create Account'
+                t('auth.register.create_account')
               )}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-gray-600">
-              Already have an account?{' '}
+              {t('auth.register.have_account')}{' '}
               <Link to="/login" className="text-[#06402B] hover:text-emerald-700 font-medium">
-                Sign in here
+                {t('auth.register.signin_here')}
               </Link>
             </p>
           </div>

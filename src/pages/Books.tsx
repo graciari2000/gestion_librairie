@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Search, Filter, Book, Calendar, DollarSign } from 'lucide-react';
 
 interface Book {
@@ -16,6 +17,7 @@ interface Book {
 }
 
 const Books: React.FC = () => {
+  const { t } = useLanguage();
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -24,17 +26,17 @@ const Books: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   const categories = [
-    'All',
-    'Fiction',
-    'Non-Fiction',
-    'Science',
-    'Technology',
-    'History',
-    'Biography',
-    'Mystery',
-    'Romance',
-    'Fantasy',
-    'Self-Help'
+    { key: 'All', label: t('books.all_categories') },
+    { key: 'Fiction', label: t('category.fiction') },
+    { key: 'Non-Fiction', label: t('category.non_fiction') },
+    { key: 'Science', label: t('category.science') },
+    { key: 'Technology', label: t('category.technology') },
+    { key: 'History', label: t('category.history') },
+    { key: 'Biography', label: t('category.biography') },
+    { key: 'Mystery', label: t('category.mystery') },
+    { key: 'Romance', label: t('category.romance') },
+    { key: 'Fantasy', label: t('category.fantasy') },
+    { key: 'Self-Help', label: t('category.self_help') }
   ];
 
   useEffect(() => {
@@ -53,7 +55,7 @@ const Books: React.FC = () => {
 
       const response = await fetch(`/api/books?${params}`);
       const data = await response.json();
-      
+
       setBooks(data.books);
       setTotalPages(data.totalPages);
     } catch (error) {
@@ -73,8 +75,8 @@ const Books: React.FC = () => {
     <div className="min-h-screen py-8 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Browse Our Collection</h1>
-          <p className="text-gray-600 text-lg">Discover your next favorite book from our extensive library</p>
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">{t('books.title')}</h1>
+          <p className="text-gray-600 text-lg">{t('books.subtitle')}</p>
         </div>
 
         {/* Search and Filter */}
@@ -87,12 +89,12 @@ const Books: React.FC = () => {
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search books by title or author..."
+                  placeholder={t('books.search_placeholder')}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 />
               </div>
             </form>
-            
+
             <div className="lg:w-64">
               <div className="relative">
                 <Filter className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
@@ -105,8 +107,8 @@ const Books: React.FC = () => {
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all appearance-none bg-white"
                 >
                   {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
+                    <option key={cat.key} value={cat.key}>
+                      {cat.label}
                     </option>
                   ))}
                 </select>
@@ -147,10 +149,10 @@ const Books: React.FC = () => {
                 <div className="p-6">
                   <h3 className="font-bold text-lg text-gray-800 mb-2 line-clamp-2">{book.title}</h3>
                   <p className="text-gray-600 mb-3">{book.author}</p>
-                  
+
                   <div className="flex items-center justify-between mb-3">
                     <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-medium">
-                      {book.category}
+                      {t(`category.${book.category.toLowerCase().replace('-', '_')}`)}
                     </span>
                     <div className="flex items-center text-gray-600">
                       <Calendar className="h-4 w-4 mr-1" />
@@ -161,11 +163,11 @@ const Books: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center text-green-600">
                       <DollarSign className="h-4 w-4" />
-                      <span className="font-semibold">{book.dailyFee}/day</span>
+                      <span className="font-semibold">{book.dailyFee}{t('books.per_day')}</span>
                     </div>
                     <div className="flex items-center text-gray-600">
                       <Book className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{book.availableCopies} available</span>
+                      <span className="text-sm">{book.availableCopies} {t('books.available')}</span>
                     </div>
                   </div>
                 </div>
@@ -183,29 +185,28 @@ const Books: React.FC = () => {
                 disabled={currentPage === 1}
                 className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                Previous
+                {t('books.previous')}
               </button>
-              
+
               {[...Array(totalPages)].map((_, i) => (
                 <button
                   key={i + 1}
                   onClick={() => setCurrentPage(i + 1)}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    currentPage === i + 1
+                  className={`px-4 py-2 rounded-lg transition-colors ${currentPage === i + 1
                       ? 'bg-emerald-600 text-white'
                       : 'border border-gray-300 hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   {i + 1}
                 </button>
               ))}
-              
+
               <button
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
                 className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                Next
+                {t('books.next')}
               </button>
             </div>
           </div>

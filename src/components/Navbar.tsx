@@ -1,10 +1,13 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { BookOpen, User, LogOut, Settings } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { BookOpen, User, LogOut } from 'lucide-react';
+import LanguageSelector from './LanguageSelector';
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -28,14 +31,14 @@ const Navbar: React.FC = () => {
               to="/books"
               className="text-gray-700 hover:text-[#06402B] transition-colors font-medium"
             >
-              Browse Books
+              {t('nav.browse_books')}
             </Link>
             {user && (
               <Link
                 to="/dashboard"
                 className="text-gray-700 hover:text-[#06402B] transition-colors font-medium"
               >
-                My Books
+                {t('nav.my_books')}
               </Link>
             )}
             {user?.role === 'admin' && (
@@ -43,12 +46,13 @@ const Navbar: React.FC = () => {
                 to="/admin"
                 className="text-gray-700 hover:text-[#06402B] transition-colors font-medium"
               >
-                Admin Panel
+                {t('nav.admin_panel')}
               </Link>
             )}
           </div>
 
           <div className="flex items-center space-x-4">
+            <LanguageSelector />
             {user ? (
               <div className="flex items-center space-x-3">
                 <div className="flex items-center space-x-2">
@@ -60,7 +64,7 @@ const Navbar: React.FC = () => {
                   className="flex items-center space-x-1 text-gray-600 hover:text-red-600 transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
-                  <span>Logout</span>
+                  <span>{t('nav.logout')}</span>
                 </button>
               </div>
             ) : (
@@ -69,13 +73,13 @@ const Navbar: React.FC = () => {
                   to="/login"
                   className="text-gray-700 hover:text-[#06402B] transition-colors font-medium"
                 >
-                  Login
+                  {t('nav.login')}
                 </Link>
                 <Link
                   to="/register"
                   className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2 rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 font-medium"
                 >
-                  Sign Up
+                  {t('nav.signup')}
                 </Link>
               </div>
             )}

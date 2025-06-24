@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { BookOpen, Mail, Lock, AlertCircle } from 'lucide-react';
 
 const Login: React.FC = () => {
@@ -9,6 +10,7 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,8 +34,8 @@ const Login: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
           <div className="text-center mb-8">
             <BookOpen className="h-12 w-12 text-[#06402B] mx-auto mb-4" />
-            <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2>
-            <p className="text-gray-600 mt-2">Sign in to your BookVault account</p>
+            <h2 className="text-3xl font-bold text-gray-800">{t('auth.login.title')}</h2>
+            <p className="text-gray-600 mt-2">{t('auth.login.subtitle')}</p>
           </div>
 
           {error && (
@@ -46,7 +48,7 @@ const Login: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
+                {t('auth.login.email')}
               </label>
               <div className="relative">
                 <Mail className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
@@ -57,14 +59,14 @@ const Login: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  placeholder="Enter your email"
+                  placeholder={t('auth.login.email')}
                 />
               </div>
             </div>
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
+                {t('auth.login.password')}
               </label>
               <div className="relative">
                 <Lock className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
@@ -75,7 +77,7 @@ const Login: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  placeholder="Enter your password"
+                  placeholder={t('auth.login.password')}
                 />
               </div>
             </div>
@@ -88,19 +90,19 @@ const Login: React.FC = () => {
               {loading ? (
                 <div className="flex items-center justify-center space-x-2">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  <span>Signing In...</span>
+                  <span>{t('auth.login.signing_in')}</span>
                 </div>
               ) : (
-                'Sign In'
+                t('auth.login.signin')
               )}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-gray-600">
-              Don't have an account?{' '}
+              {t('auth.login.no_account')}{' '}
               <Link to="/register" className="text-[#06402B] hover:text-emerald-700 font-medium">
-                Sign up here
+                {t('auth.login.signup_here')}
               </Link>
             </p>
           </div>
