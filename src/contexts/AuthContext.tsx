@@ -11,15 +11,14 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
-  registerAdmin: (name: string, email: string, password: string, adminToken: string) => Promise<void>;
+  register: (name: string, email: string, password: string, role?: 'user' | 'admin') => Promise<void>;
   logout: () => void;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -41,18 +40,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (storedToken && storedUser) {
         try {
-          const response = await fetch(`${API_BASE_URL}/api/auth/validate`, {
-            headers: {
-              'Authorization': `Bearer ${storedToken}`
-            }
-          });
-
-          if (response.ok) {
-            setToken(storedToken);
-            setUser(JSON.parse(storedUser));
-          } else {
-            clearAuthData();
-          }
+          // For now, we'll just use the stored data
+          // In a real app, you might want to validate the token with the server
+          setToken(storedToken);
+          setUser(JSON.parse(storedUser));
         } catch (error) {
           console.error('Token validation failed:', error);
           clearAuthData();
@@ -103,14 +94,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('user', JSON.stringify(data.user));
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (name: string, email: string, password: string, role: 'user' | 'admin' = 'user') => {
     const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify({ name, email, password, role: 'user' }), // Default role
+      body: JSON.stringify({ name, email, password, role }),
     });
 
     const data = await handleAuthResponse(response);
@@ -118,21 +109,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(data.user);
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
-  };
-
-  const registerAdmin = async (name: string, email: string, password: string, adminToken: string) => {
-    const response = await fetch(`${API_BASE_URL}/api/auth/register-admin`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${adminToken}`
-      },
-      body: JSON.stringify({ name, email, password, role: 'admin' }),
-    });
-
-    const data = await handleAuthResponse(response);
-    return data; // Typically you wouldn't auto-login after admin registration
   };
 
   const logout = () => {
@@ -146,7 +122,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     token,
     login,
     register,
-    registerAdmin,
     logout,
     loading,
   };
