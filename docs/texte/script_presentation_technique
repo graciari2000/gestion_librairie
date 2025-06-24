@@ -1,0 +1,9 @@
+"Sur le plan technique :
+
+Le Front-End est développé avec React.js, permettant une navigation fluide et dynamique.
+Le Back-End repose sur Node.js et Express.js pour la gestion des routes API.
+La base de données est gérée avec MongoDB, permettant de stocker les informations des utilisateurs, des livres et des emprunts.
+Nous avons mis en place un système d'authentification sécurisé via JWT avec distinction des rôles (utilisateur classique ou administrateur) pour protéger les accès.
+L’administrateur accède à des routes API spécifiques, sécurisées par un middleware qui vérifie son rôle avant toute action sensible (comme l’ajout ou la suppression de livres).
+
+Les principales difficultés rencontrées ont été la gestion des différents rôles et la sécurisation des opérations sensibles, que nous avons surmontées grâce à l’utilisation des middlewares Express et d’une gestion fine des tokens."
