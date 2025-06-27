@@ -1,74 +1,131 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Search, Filter, Book, Calendar, DollarSign } from 'lucide-react';
+import { Search, Filter, Book, Calendar, DollarSign, AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface Book {
   _id: string;
   title: string;
-  author: string;
-  category: string;
+  author: {
+    name: string;
+    _id: string;
+  };
+  genre: string;
   description: string;
-  coverImage: string;
+  image: string;
   availableCopies: number;
   totalCopies: number;
   dailyFee: number;
   publishedYear: number;
+  price: number;
+  stock: number;
 }
 
 const Books: React.FC = () => {
   const { t } = useLanguage();
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('All');
+  const [genre, setgenre] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [retryCount, setRetryCount] = useState(0);
 
-  const categories = [
-    { key: 'All', label: t('books.all_categories') },
-    { key: 'Fiction', label: t('category.fiction') },
-    { key: 'Non-Fiction', label: t('category.non_fiction') },
-    { key: 'Science', label: t('category.science') },
-    { key: 'Technology', label: t('category.technology') },
-    { key: 'History', label: t('category.history') },
-    { key: 'Biography', label: t('category.biography') },
-    { key: 'Mystery', label: t('category.mystery') },
-    { key: 'Romance', label: t('category.romance') },
-    { key: 'Fantasy', label: t('category.fantasy') },
-    { key: 'Self-Help', label: t('category.self_help') }
+  const genres = [
+    { key: 'All', label: t('books.all_genres') },
+    { key: 'Fiction', label: t('genre.fiction') },
+    { key: 'Dystopian', label: t('genre.dystopian') },
+    { key: 'Classic', label: t('genre.classic') },
+    { key: 'Fantasy', label: t('genre.fantasy') },
+    { key: 'Historical Fiction', label: t('genre.historical_fiction') },
+    { key: 'Memoir', label: t('genre.memoir') },
+    { key: 'Young Adult', label: t('genre.young_adult') },
+    { key: 'Gothic Fiction', label: t('genre.gothic_fiction') },
+    { key: 'Philosophical Fiction', label: t('genre.philosophical_fiction') }
   ];
 
-  useEffect(() => {
-    fetchBooks();
-  }, [search, category, currentPage]);
-
-  const fetchBooks = async () => {
+  const fetchBooks = async (signal?: AbortSignal) => {
     try {
       setLoading(true);
+      setError(null);
+
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: '12',
         ...(search && { search }),
-        ...(category !== 'All' && { category })
+        ...(genre !== 'All' && { genre: genre })
       });
 
-      const response = await fetch(`/api/books?${params}`);
+      const response = await fetch(`http://localhost:5003/api/books?${params}`, {
+        signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache'
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 503) {
+          // Verify backend health
+          const healthResponse = await fetch('http://localhost:5003/api/health');
+          if (!healthResponse.ok) {
+            throw new Error(t('books.backend_unavailable'));
+          }
+          throw new Error(t('books.service_unavailable'));
+        }
+        throw new Error(`${t('books.fetch_error')} (Status: ${response.status})`);
+      }
+
       const data = await response.json();
+      if (!data.books) throw new Error(t('books.invalid_response'));
 
       setBooks(data.books);
-      setTotalPages(data.totalPages);
-    } catch (error) {
-      console.error('Error fetching books:', error);
+      setTotalPages(data.totalPages || 1);
+
+      // Cache successful response
+      localStorage.setItem('cachedBooks', JSON.stringify(data.books));
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Fetch error:', err);
+        setError(err.message || t('books.fetch_error'));
+
+        // Fallback to cached data if available
+        const cachedBooks = localStorage.getItem('cachedBooks');
+        if (cachedBooks) {
+          try {
+            setBooks(JSON.parse(cachedBooks));
+          } catch (e) {
+            console.error('Error parsing cached books:', e);
+          }
+        }
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    fetchBooks(controller.signal).finally(() => {
+      clearTimeout(timeoutId);
+    });
+
+    return () => {
+      controller.abort();
+      clearTimeout(timeoutId);
+    };
+  }, [search, genre, currentPage, t, retryCount]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setCurrentPage(1);
-    fetchBooks();
+  };
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
   };
 
   return (
@@ -99,14 +156,14 @@ const Books: React.FC = () => {
               <div className="relative">
                 <Filter className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                 <select
-                  value={category}
+                  value={genre}
                   onChange={(e) => {
-                    setCategory(e.target.value);
+                    setgenre(e.target.value);
                     setCurrentPage(1);
                   }}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all appearance-none bg-white"
                 >
-                  {categories.map((cat) => (
+                  {genres.map((cat) => (
                     <option key={cat.key} value={cat.key}>
                       {cat.label}
                     </option>
@@ -116,6 +173,33 @@ const Books: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <AlertTriangle className="h-5 w-5 text-amber-400" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-amber-800">
+                  {error.includes('503') ? t('books.service_unavailable') : error}
+                </h3>
+                <div className="mt-2 text-sm text-amber-700">
+                  <p>{t('books.retry_suggestion')}</p>
+                  <button
+                    onClick={handleRetry}
+                    disabled={loading}
+                    className="mt-2 inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-amber-700 bg-amber-100 hover:bg-amber-200 focus:outline-none"
+                  >
+                    <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                    {t('books.retry_button')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Books Grid */}
         {loading ? (
@@ -141,18 +225,21 @@ const Books: React.FC = () => {
               >
                 <div className="h-64 overflow-hidden">
                   <img
-                    src={book.coverImage}
+                    src={book.image}
                     alt={book.title}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/placeholder-book.jpg';
+                    }}
                   />
                 </div>
                 <div className="p-6">
                   <h3 className="font-bold text-lg text-gray-800 mb-2 line-clamp-2">{book.title}</h3>
-                  <p className="text-gray-600 mb-3">{book.author}</p>
+                  <p className="text-gray-600 mb-3">{book.author.name}</p>
 
                   <div className="flex items-center justify-between mb-3">
                     <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-medium">
-                      {t(`category.${book.category.toLowerCase().replace('-', '_')}`)}
+                      {book.genre}
                     </span>
                     <div className="flex items-center text-gray-600">
                       <Calendar className="h-4 w-4 mr-1" />
@@ -163,11 +250,13 @@ const Books: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center text-green-600">
                       <DollarSign className="h-4 w-4" />
-                      <span className="font-semibold">{book.dailyFee}{t('books.per_day')}</span>
+                      <span className="font-semibold">${book.dailyFee.toFixed(2)} {t('books.per_day')}</span>
                     </div>
                     <div className="flex items-center text-gray-600">
                       <Book className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{book.availableCopies} {t('books.available')}</span>
+                      <span className="text-sm">
+                        {book.availableCopies}/{book.totalCopies} {t('books.available')}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -188,16 +277,16 @@ const Books: React.FC = () => {
                 {t('books.previous')}
               </button>
 
-              {[...Array(totalPages)].map((_, i) => (
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
-                  key={i + 1}
-                  onClick={() => setCurrentPage(i + 1)}
-                  className={`px-4 py-2 rounded-lg transition-colors ${currentPage === i + 1
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-4 py-2 rounded-lg transition-colors ${currentPage === page
                       ? 'bg-emerald-600 text-white'
                       : 'border border-gray-300 hover:bg-gray-50'
                     }`}
                 >
-                  {i + 1}
+                  {page}
                 </button>
               ))}
 

@@ -81,6 +81,7 @@ const bookSchema = new mongoose.Schema({
 
 const Author = mongoose.model('Author', authorSchema);
 const Book = mongoose.model('Book', bookSchema);
+
 // 1. Define all authors
 const authors = [
     { name: "George Orwell" },
@@ -329,15 +330,7 @@ const booksData = [
     }
 ];
 
-return booksData.map(book => ({
-    ...book,
-    isbn: generateUniqueISBN(usedISBNs, 13),
-    availableCopies: book.stock,
-    totalCopies: book.stock
-}));
-
 async function prepareBooks() {
-
     return booksData.map(book => ({
         ...book,
         isbn: generateUniqueISBN(usedISBNs, 13),
@@ -352,7 +345,9 @@ async function seedDatabase() {
         console.log(`🔗 Connecting to MongoDB...`);
 
         await mongoose.connect(MONGODB_URI, {
-            serverSelectionTimeoutMS: 5003
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+            connectTimeoutMS: 5000
         });
 
         console.log("📚 Connected to MongoDB");
@@ -384,7 +379,7 @@ async function seedDatabase() {
 
         // Seed books in batches
         console.log("⏳ Seeding books...");
-        const BATCH_SIZE = 5; // Reduced batch size for safety
+        const BATCH_SIZE = 5;
         for (let i = 0; i < booksWithReferences.length; i += BATCH_SIZE) {
             const batch = booksWithReferences.slice(i, i + BATCH_SIZE);
             await Book.insertMany(batch);
@@ -405,4 +400,5 @@ async function seedDatabase() {
     }
 }
 
+// Start the seeding process
 seedDatabase();

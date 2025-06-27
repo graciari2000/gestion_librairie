@@ -16,7 +16,7 @@ interface Book {
   title: string;
   author: string;
   isbn: string;
-  category: string;
+  genre: string;
   description: string;
   coverImage: string;
   totalCopies: number;
@@ -65,17 +65,17 @@ const AdminPanel: React.FC = () => {
     title: '',
     author: '',
     isbn: '',
-    category: 'Fiction',
+    genre: 'Fiction',
     description: '',
     coverImage: 'https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg',
     totalCopies: 1,
     dailyFee: 0.50,
-    publishedYear: new Date().getFullYear()
+    publishedYear: ''
   });
 
-  const categories = [
+  const genres = [
     'Fiction', 'Non-Fiction', 'Science', 'Technology', 'History', 
-    'Biography', 'Mystery', 'Romance', 'Fantasy', 'Self-Help'
+    'Biography', 'Mystery', 'Romance', 'Fantasy', 'Self-Help', 'Memoir'
   ];
 
   useEffect(() => {
@@ -127,12 +127,12 @@ const AdminPanel: React.FC = () => {
           title: '',
           author: '',
           isbn: '',
-          category: 'Fiction',
+          genre: 'Fiction',
           description: '',
           coverImage: 'https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg',
           totalCopies: 1,
           dailyFee: 0.50,
-          publishedYear: new Date().getFullYear()
+          publishedYear: ''
         });
         fetchData();
       }
@@ -246,11 +246,11 @@ const AdminPanel: React.FC = () => {
                             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                           />
                           <select
-                            value={newBook.category}
-                            onChange={(e) => setNewBook({ ...newBook, category: e.target.value })}
+                            value={newBook.genre}
+                            onChange={(e) => setNewBook({ ...newBook, genre: e.target.value })}
                             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                           >
-                            {categories.map((cat) => (
+                            {genres.map((cat) => (
                               <option key={cat} value={cat}>{cat}</option>
                             ))}
                           </select>
@@ -320,7 +320,7 @@ const AdminPanel: React.FC = () => {
                         <thead className="bg-gray-50">
                           <tr>
                             <th className="text-left py-3 px-4 font-semibold text-gray-700">Book</th>
-                            <th className="text-left py-3 px-4 font-semibold text-gray-700">Category</th>
+                            <th className="text-left py-3 px-4 font-semibold text-gray-700">genre</th>
                             <th className="text-left py-3 px-4 font-semibold text-gray-700">Copies</th>
                             <th className="text-left py-3 px-4 font-semibold text-gray-700">Daily fee</th>
                             <th className="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
@@ -344,7 +344,7 @@ const AdminPanel: React.FC = () => {
                               </td>
                               <td className="py-3 px-4">
                                 <span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full text-xs font-medium">
-                                  {book.category}
+                                  {book.genre}
                                 </span>
                               </td>
                               <td className="py-3 px-4">

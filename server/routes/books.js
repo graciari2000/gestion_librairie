@@ -7,7 +7,7 @@ const router = express.Router();
 // Get all books
 router.get('/', async (req, res) => {
   try {
-    const { search, category, page = 1, limit = 12 } = req.query;
+    const { search, genre, page = 1, limit = 50 } = req.query;
     const query = {};
 
     if (search) {
@@ -17,14 +17,13 @@ router.get('/', async (req, res) => {
       ];
     }
 
-    if (category && category !== 'All') {
-      query.category = category;
+    if (genre && genre !== 'All') {
+      query.genre = genre;
     }
 
     const books = await Book.find(query)
       .limit(limit * 1)
       .skip((page - 1) * limit)
-      .populate('addedBy', 'name')
       .sort({ createdAt: -1 });
 
     const total = await Book.countDocuments(query);
@@ -43,7 +42,7 @@ router.get('/', async (req, res) => {
 // Get single book
 router.get('/:id', async (req, res) => {
   try {
-    const book = await Book.findById(req.params.id).populate('addedBy', 'name');
+    const book = await Book.findById(req.params.id);
     if (!book) {
       return res.status(404).json({ message: 'Book not found' });
     }
@@ -62,12 +61,10 @@ router.post('/', authenticateToken, async (req, res) => {
 
     const book = new Book({
       ...req.body,
-      addedBy: req.user.userId,
       availableCopies: req.body.totalCopies
     });
 
     await book.save();
-    await book.populate('addedBy', 'name');
 
     res.status(201).json(book);
   } catch (error) {
@@ -86,7 +83,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
       req.params.id,
       req.body,
       { new: true }
-    ).populate('addedBy', 'name');
+    );
 
     if (!book) {
       return res.status(404).json({ message: 'Book not found' });

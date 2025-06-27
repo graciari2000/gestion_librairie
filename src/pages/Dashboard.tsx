@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { 
-  Book, 
-  Calendar, 
-  DollarSign, 
+import {
+  Book,
+  Calendar,
+  DollarSign,
   Clock,
   CheckCircle,
   AlertTriangle,
@@ -12,11 +12,11 @@ import {
 
 interface Borrowing {
   _id: string;
-  book: {
-    _id: string;
-    title: string;
-    author: string;
-    coverImage: string;
+  book?: {
+    _id?: string;
+    title?: string;
+    author?: string;
+    coverImage?: string;
   };
   borrowDate: string;
   dueDate: string;
@@ -32,13 +32,18 @@ const Dashboard: React.FC = () => {
   const { user, token } = useAuth();
   const [borrowings, setBorrowings] = useState<Borrowing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [returning, setReturning] = useState<string | null>(null);
+
+  const [returnErrors, setReturnErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchBorrowings();
   }, []);
 
   const fetchBorrowings = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const response = await fetch('/api/borrowings/my-borrowings', {
         headers: {
@@ -46,12 +51,15 @@ const Dashboard: React.FC = () => {
         },
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setBorrowings(data);
+      if (!response.ok) {
+        throw new Error('Failed to fetch borrowings');
       }
+
+      const data = await response.json();
+      setBorrowings(data);
     } catch (error) {
       console.error('Error fetching borrowings:', error);
+      setError(error instanceof Error ? error.message : 'Unknown error occurred');
     } finally {
       setLoading(false);
     }
@@ -59,20 +67,39 @@ const Dashboard: React.FC = () => {
 
   const handleReturn = async (borrowingId: string) => {
     setReturning(borrowingId);
+    setReturnErrors(prev => ({ ...prev, [borrowingId]: '' }));
 
     try {
-      const response = await fetch(`/api/borrowings/${borrowingId}/return`, {
+      const endpoint = `http://localhost:5003/api/borrowings/${borrowingId}/return`;
+      console.log('Making request to:', endpoint); // Log the exact URL
+
+      const response = await fetch(endpoint, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
 
-      if (response.ok) {
-        fetchBorrowings(); // Refresh data
+      console.log('Response status:', response.status); // Log the status code
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.log('Error response data:', errorData); // Log error details
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
+
+      fetchBorrowings();
     } catch (error) {
-      console.error('Error returning book:', error);
+      console.error('Full error details:', {
+        error,
+        message: error.message,
+        stack: error.stack
+      });
+      setReturnErrors(prev => ({
+        ...prev,
+        [borrowingId]: error.message
+      }));
     } finally {
       setReturning(null);
     }
@@ -106,12 +133,29 @@ const Dashboard: React.FC = () => {
 
   const activeBorrowings = borrowings.filter(b => b.status !== 'returned');
   const completedBorrowings = borrowings.filter(b => b.status === 'returned');
-  const totalFees = borrowings.reduce((sum, b) => sum + b.totalFee, 0);
+  const totalFees = borrowings.reduce((sum, b) => sum + (b.totalFee || 0), 0);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={fetchBorrowings}
+            className="bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -180,18 +224,21 @@ const Dashboard: React.FC = () => {
                   <div className="flex">
                     <div className="w-32 h-40 flex-shrink-0">
                       <img
-                        src={borrowing.book.coverImage}
-                        alt={borrowing.book.title}
+                        src={borrowing?.book?.coverImage || '/default-book-cover.jpg'}
+                        alt={borrowing?.book?.title || 'Book cover'}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/default-book-cover.jpg';
+                        }}
                       />
                     </div>
                     <div className="flex-1 p-6">
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <h3 className="font-bold text-lg text-gray-800 mb-1">
-                            {borrowing.book.title}
+                            {borrowing?.book?.title || 'Unknown Title'}
                           </h3>
-                          <p className="text-gray-600">{borrowing.book.author}</p>
+                          <p className="text-gray-600">{borrowing?.book?.author || 'Unknown Author'}</p>
                         </div>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 ${getStatusColor(borrowing.status)}`}>
                           {getStatusIcon(borrowing.status)}
@@ -237,6 +284,9 @@ const Dashboard: React.FC = () => {
                           'Return Book'
                         )}
                       </button>
+                      {returnErrors[borrowing._id] && (
+                        <p className="text-red-500 text-sm mt-2">{returnErrors[borrowing._id]}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -280,13 +330,20 @@ const Dashboard: React.FC = () => {
                         <td className="py-4 px-6">
                           <div className="flex items-center space-x-3">
                             <img
-                              src={borrowing.book.coverImage}
-                              alt={borrowing.book.title}
+                              src={borrowing?.book?.coverImage || '/default-book-cover.jpg'}
+                              alt={borrowing?.book?.title || 'Book cover'}
                               className="w-10 h-12 object-cover rounded"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = '/default-book-cover.jpg';
+                              }}
                             />
                             <div>
-                              <div className="font-medium text-gray-800">{borrowing.book.title}</div>
-                              <div className="text-sm text-gray-600">{borrowing.book.author}</div>
+                              <div className="font-medium text-gray-800">
+                                {borrowing?.book?.title || 'Unknown Title'}
+                              </div>
+                              <div className="text-sm text-gray-600">
+                                {borrowing?.book?.author || 'Unknown Author'}
+                              </div>
                             </div>
                           </div>
                         </td>
@@ -297,7 +354,7 @@ const Dashboard: React.FC = () => {
                           {new Date(borrowing.dueDate).toLocaleDateString()}
                         </td>
                         <td className="py-4 px-6 text-gray-600">
-                          {borrowing.returnDate 
+                          {borrowing.returnDate
                             ? new Date(borrowing.returnDate).toLocaleDateString()
                             : '-'
                           }

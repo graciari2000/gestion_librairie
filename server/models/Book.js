@@ -16,10 +16,10 @@ const bookSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  category: {
+  genre: {
     type: String,
     required: true,
-    enum: ['Fiction', 'Non-Fiction', 'Science', 'Technology', 'History', 'Biography', 'Mystery', 'Romance', 'Fantasy', 'Self-Help']
+    enum: ['Fiction', 'Non-Fiction', 'Science', 'Technology', 'History', 'Biography', 'Mystery', 'Romance', 'Fantasy', 'Self-Help', 'Memoir']
   },
   description: {
     type: String,
@@ -48,11 +48,6 @@ const bookSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  addedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  }
 }, {
   timestamps: true
 });

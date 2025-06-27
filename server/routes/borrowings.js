@@ -9,20 +9,34 @@ const router = express.Router();
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { bookId, days = 7 } = req.body;
+    const userId = req.user.userId;
+
+    // Validate input
+    if (!bookId || !days || days < 1 || days > 30) {
+      return res.status(400).json({
+        message: 'Invalid request. Please provide valid bookId and days (1-30)'
+      });
+    }
 
     const book = await Book.findById(bookId);
-    if (!book || book.availableCopies <= 0) {
-      return res.status(400).json({ message: 'Book not available' });
+    if (!book) {
+      return res.status(404).json({ message: 'Book not found' });
+    }
+
+    if (book.availableCopies <= 0) {
+      return res.status(400).json({ message: 'No available copies of this book' });
     }
 
     const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + days);
+    dueDate.setDate(dueDate.getDate() + parseInt(days));
 
     const borrowing = new Borrowing({
-      user: req.user.userId,
+      user: userId,
       book: bookId,
+      borrowDate: new Date(),
       dueDate,
-      dailyFee: book.dailyFee
+      dailyFee: book.dailyFee,
+      status: 'borrowed'
     });
 
     await borrowing.save();
@@ -31,11 +45,22 @@ router.post('/', authenticateToken, async (req, res) => {
     book.availableCopies -= 1;
     await book.save();
 
-    await borrowing.populate(['user', 'book']);
+    // Populate the response
+    const populatedBorrowing = await Borrowing.findById(borrowing._id)
+      .populate('user', 'name email')
+      .populate('book', 'title author');
 
-    res.status(201).json(borrowing);
+    res.status(201).json({
+      message: 'Book borrowed successfully',
+      borrowing: populatedBorrowing
+    });
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Borrowing error:', error);
+    res.status(500).json({
+      message: 'Failed to process borrowing',
+      error: error.message
+    });
   }
 });
 
