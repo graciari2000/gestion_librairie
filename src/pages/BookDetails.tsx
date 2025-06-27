@@ -124,7 +124,11 @@ const BookDetails: React.FC = () => {
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (error) {
       console.error('Borrowing error:', error);
-      setMessage(error.message || t('book.network_error'));
+      if (error instanceof Error) {
+        setMessage(error.message || t('book.network_error'));
+      } else {
+        setMessage(t('book.network_error'));
+      }
     } finally {
       setBorrowing(false);
     }

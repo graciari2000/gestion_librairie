@@ -88,7 +88,7 @@ const Dashboard: React.FC = () => {
     } catch (error) {
       setReturnErrors(prev => ({
         ...prev,
-        [borrowingId]: error.message || 'Failed to return book'
+        [borrowingId]: error instanceof Error ? error.message : 'Failed to return book'
       }));
     } finally {
       setReturning(null);
