@@ -70,10 +70,7 @@ const Dashboard: React.FC = () => {
     setReturnErrors(prev => ({ ...prev, [borrowingId]: '' }));
 
     try {
-      const endpoint = `http://localhost:5003/api/borrowings/${borrowingId}/return`;
-      console.log('Making request to:', endpoint); // Log the exact URL
-
-      const response = await fetch(endpoint, {
+      const response = await fetch(`/api/borrowings/${borrowingId}/return`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -81,24 +78,17 @@ const Dashboard: React.FC = () => {
         },
       });
 
-      console.log('Response status:', response.status); // Log the status code
-
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.log('Error response data:', errorData); // Log error details
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to return book');
       }
 
-      fetchBorrowings();
+      // Refresh the borrowings list
+      await fetchBorrowings();
     } catch (error) {
-      console.error('Full error details:', {
-        error,
-        message: error.message,
-        stack: error.stack
-      });
       setReturnErrors(prev => ({
         ...prev,
-        [borrowingId]: error.message
+        [borrowingId]: error.message || 'Failed to return book'
       }));
     } finally {
       setReturning(null);
