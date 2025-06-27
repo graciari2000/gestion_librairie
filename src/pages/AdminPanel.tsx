@@ -73,10 +73,8 @@ const AdminPanel: React.FC = () => {
     publishedYear: ''
   });
 
-  const genres = [
-    'Fiction', 'Non-Fiction', 'Science', 'Technology', 'History', 
-    'Biography', 'Mystery', 'Romance', 'Fantasy', 'Self-Help', 'Memoir'
-  ];
+  // Update genres to match those in seedBooks.js
+  const genres = ['Dystopian', 'Fiction', 'Classic', 'Memoir', 'Young Adult', 'Gothic Fiction', 'Fantasy', 'Historical Fiction', 'Philosophical Fiction'];
 
   useEffect(() => {
     fetchData();
@@ -277,7 +275,7 @@ const AdminPanel: React.FC = () => {
                             type="number"
                             placeholder="Published Year"
                             value={newBook.publishedYear}
-                            onChange={(e) => setNewBook({ ...newBook, publishedYear: parseInt(e.target.value) })}
+                            onChange={(e) => setNewBook({ ...newBook, publishedYear: parseInt(e.target.value).toString() })}
                             required
                             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                           />

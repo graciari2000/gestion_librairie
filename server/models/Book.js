@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 
+const genres = ['Dystopian', 'Fiction', 'Classic', 'Memoir', 'Young Adult', 'Gothic Fiction', 'Fantasy', 'Historical Fiction', 'Philosophical Fiction'];
+
 const bookSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -18,8 +20,8 @@ const bookSchema = new mongoose.Schema({
   },
   genre: {
     type: String,
-    required: true,
-    enum: ['Fiction', 'Non-Fiction', 'Science', 'Technology', 'History', 'Biography', 'Mystery', 'Romance', 'Fantasy', 'Self-Help', 'Memoir']
+    enum: genres,
+    required: true
   },
   description: {
     type: String,

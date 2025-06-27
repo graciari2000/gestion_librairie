@@ -4,6 +4,9 @@ import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
+// Update genres to match those in seedBooks.js
+const genres = ['Dystopian', 'Fiction', 'Classic', 'Memoir', 'Young Adult', 'Gothic Fiction', 'Fantasy', 'Historical Fiction', 'Philosophical Fiction'];
+
 // Get all books
 router.get('/', async (req, res) => {
   try {
@@ -17,7 +20,7 @@ router.get('/', async (req, res) => {
       ];
     }
 
-    if (genre && genre !== 'All') {
+    if (genre && genres.includes(genre)) {
       query.genre = genre;
     }
 

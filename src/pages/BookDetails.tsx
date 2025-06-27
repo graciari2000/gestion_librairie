@@ -14,31 +14,14 @@ import {
 } from 'lucide-react';
 
 // Define valid genres as a type
-type BookGenre =
-  | 'Fiction'
-  | 'Non-Fiction'
-  | 'Science'
-  | 'Technology'
-  | 'History'
-  | 'Biography'
-  | 'Memoir'
-  | 'Mystery'
-  | 'Romance'
-  | 'Fantasy'
-  | 'Self-Help'
-  | 'Dystopian'
-  | 'Classic'
-  | 'Young Adult'
-  | 'Gothic Fiction'
-  | 'Philosophical Fiction'
-  | 'Historical Fiction';
+const validGenres = ['Dystopian', 'Fiction', 'Classic', 'Memoir', 'Young Adult', 'Gothic Fiction', 'Fantasy', 'Historical Fiction', 'Philosophical Fiction'];
 
 interface BookData {
   _id: string;
   title: string;
   author: string;
   isbn: string;
-  genre: BookGenre;
+  genre: string;
   description: string;
   coverImage: string;
   totalCopies: number;
@@ -74,19 +57,14 @@ const BookDetails: React.FC = () => {
         const data = await response.json();
 
         // Validate genre
-        const validGenres: BookGenre[] = [
-          'Fiction', 'Non-Fiction', 'Science', 'Technology', 'History',
-          'Biography', 'Memoir', 'Mystery', 'Romance', 'Fantasy',
-          'Self-Help', 'Dystopian', 'Classic', 'Young Adult',
-          'Gothic Fiction', 'Philosophical Fiction', 'Historical Fiction'
-        ];
-
-        if (!validGenres.includes(data.genre)) {
-          data.genre = 'Fiction'; // Default to Fiction if invalid
+        let genre = data.genre;
+        if (!validGenres.includes(genre)) {
+          genre = 'Fiction'; // Default to Fiction if invalid
         }
 
         setBook({
           ...data,
+          genre,
           addedBy: data.addedBy || { name: 'System' },
           coverImage: data.coverImage || '/placeholder-book.jpg'
         });
