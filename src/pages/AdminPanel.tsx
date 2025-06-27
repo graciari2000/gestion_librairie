@@ -6,9 +6,7 @@ import {
   Plus, 
   Edit, 
   Trash2,
-  Search,
-  Calendar,
-  DollarSign
+  Calendar
 } from 'lucide-react';
 
 interface Book {

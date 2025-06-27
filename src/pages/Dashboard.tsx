@@ -7,7 +7,6 @@ import {
   Clock,
   CheckCircle,
   AlertTriangle,
-  ArrowLeft
 } from 'lucide-react';
 
 interface Borrowing {
