@@ -2,7 +2,7 @@
   "name": "bookvault-library-management",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "type": "module, commonjs",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "client": "vite",
