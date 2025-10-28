@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 export type Language = 'en' | 'fr';
 
@@ -19,7 +19,7 @@ export const useLanguage = () => {
 };
 
 // Translation keys and values
-const translations = {
+const translations: Record<Language, Record<string, string>> = {
   en: {
     // Navigation
     'nav.browse_books': 'Browse Books',

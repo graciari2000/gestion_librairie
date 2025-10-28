@@ -86,10 +86,11 @@ const Books: React.FC = () => {
 
       // Cache successful response
       localStorage.setItem('cachedBooks', JSON.stringify(data.books));
-    } catch (err) {
-      if (err.name !== 'AbortError') {
+  } catch (err: unknown) {
+      if (!(err instanceof DOMException && err.name === 'AbortError')) {
         console.error('Fetch error:', err);
-        setError(err.message || t('books.fetch_error'));
+        const message = err instanceof Error ? err.message : t('books.fetch_error');
+        setError(message);
 
         // Fallback to cached data if available
         const cachedBooks = localStorage.getItem('cachedBooks');
