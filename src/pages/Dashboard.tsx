@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE_URL } from '../config';
 import {
   Book,
   Calendar,
@@ -44,7 +45,7 @@ const Dashboard: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/borrowings/my-borrowings', {
+      const response = await fetch(`${API_BASE_URL}/api/borrowings/my-borrowings`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -69,7 +70,7 @@ const Dashboard: React.FC = () => {
     setReturnErrors(prev => ({ ...prev, [borrowingId]: '' }));
 
     try {
-      const response = await fetch(`/api/borrowings/${borrowingId}/return`, {
+      const response = await fetch(`${API_BASE_URL}/api/borrowings/${borrowingId}/return`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,

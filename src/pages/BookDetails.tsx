@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { API_BASE_URL } from '../config';
 import {
   Book,
   Calendar,
@@ -48,7 +49,7 @@ const BookDetails: React.FC = () => {
     const fetchBook = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/books/${id}`);
+        const response = await fetch(`${API_BASE_URL}/api/books/${id}`);
 
         if (!response.ok) {
           throw new Error('Failed to fetch book');
@@ -94,7 +95,7 @@ const BookDetails: React.FC = () => {
       if (book.availableCopies <= 0) throw new Error(t('book.no_available_copies'));
       if (days < 1 || days > 30) throw new Error(t('book.invalid_days'));
 
-      const response = await fetch('http://localhost:5003/api/borrowings', {
+      const response = await fetch(`${API_BASE_URL}/api/borrowings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +117,7 @@ const BookDetails: React.FC = () => {
       setMessage(t('book.borrow_success'));
 
       // Refresh book data
-      const bookResponse = await fetch(`/api/books/${id}`);
+      const bookResponse = await fetch(`${API_BASE_URL}/api/books/${id}`);
       if (bookResponse.ok) {
         setBook(await bookResponse.json());
       }

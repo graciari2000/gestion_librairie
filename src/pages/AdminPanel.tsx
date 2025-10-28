@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE_URL } from '../config';
 import { 
   Book, 
   Users, 
@@ -82,17 +83,17 @@ const AdminPanel: React.FC = () => {
     setLoading(true);
     try {
       if (activeTab === 'books') {
-        const response = await fetch('/api/books');
+        const response = await fetch(`${API_BASE_URL}/api/books`);
         const data = await response.json();
         setBooks(data.books);
       } else if (activeTab === 'users') {
-        const response = await fetch('/api/users', {
+        const response = await fetch(`${API_BASE_URL}/api/users`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await response.json();
         setUsers(data);
       } else if (activeTab === 'borrowings') {
-        const response = await fetch('/api/borrowings/all', {
+        const response = await fetch(`${API_BASE_URL}/api/borrowings/all`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await response.json();
@@ -108,7 +109,7 @@ const AdminPanel: React.FC = () => {
   const handleAddBook = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/books', {
+      const response = await fetch(`${API_BASE_URL}/api/books`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -140,7 +141,7 @@ const AdminPanel: React.FC = () => {
   const handleDeleteBook = async (bookId: string) => {
     if (window.confirm('Are you sure you want to delete this book?')) {
       try {
-        const response = await fetch(`/api/books/${bookId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/books/${bookId}`, {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` }
         });

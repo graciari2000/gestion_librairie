@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: bookvault-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run start
+    autoDeploy: true
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: NODE_VERSION
+        value: 18

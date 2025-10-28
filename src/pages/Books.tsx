@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Search, Filter, Book, Calendar, DollarSign, AlertTriangle, RefreshCw } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 interface Book {
   _id: string;
@@ -57,7 +58,7 @@ const Books: React.FC = () => {
         ...(genre !== 'All' && { genre: genre })
       });
 
-      const response = await fetch(`http://localhost:5003/api/books?${params}`, {
+      const response = await fetch(`${API_BASE_URL}/api/books?${params}`, {
         signal,
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +69,7 @@ const Books: React.FC = () => {
       if (!response.ok) {
         if (response.status === 503) {
           // Verify backend health
-          const healthResponse = await fetch('http://localhost:5003/api/health');
+          const healthResponse = await fetch(`${API_BASE_URL}/api/health`);
           if (!healthResponse.ok) {
             throw new Error(t('books.backend_unavailable'));
           }
